@@ -7,15 +7,48 @@ output:
 
 
 ## Loading and preprocessing the data
+### Unzip the activity zip file
+```{r}
+unzip("activity.zip")
+```
+### Load the data into a variable
+```{r}
+raw_data <- read.csv("activity.csv")
+```
 
-
+### Convert the date column to R Date.
+```{r}
+raw_data$date <- as.Date(as.character(raw_data$date), "%Y-%m-%d")
+```
 
 ## What is mean total number of steps taken per day?
+### Aggregate step data as a sum, for each day.
+```{r}
+steps_per_day <- aggregate(steps ~ date, FUN=sum, data=raw_data)
+```
+### Compute a histogram of daily step data.
+```{r}
+hist(steps_per_day$steps)
+```
+
+### Calculate and report the mean and median of the total number of steps taken per day
+```{r}
+avg <- mean(steps_per_day$steps)
+med <- median(steps_per_day$steps)
+```
+Average daily step count: `r avg`.  
+Median daily step count: `r med`.
 
 
 
 ## What is the average daily activity pattern?
+### Compute an average of the number of steps per 5-minute interval
+```{r}
+daily_aggregate <- aggregate(steps ~ interval, FUN=sum, data=raw_data, na.action=na.omit)
+plot(daily_aggregate$interval, daily_aggregate$steps, type = "l")
+max(daily_aggregate$steps)
 
+```
 
 
 ## Imputing missing values
