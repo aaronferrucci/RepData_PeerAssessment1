@@ -1,3 +1,5 @@
+<!-- setwd("C:\\Users\\aaronf\\Documents\\classes\\data_science\\reproducible_research\\RepData_PeerAssessment1") -->
+
 ---
 title: "Reproducible Research: Peer Assessment 1"
 output: 
@@ -44,15 +46,50 @@ Median daily step count: `r med`.
 ## What is the average daily activity pattern?
 ### Compute an average of the number of steps per 5-minute interval
 ```{r}
-daily_aggregate <- aggregate(steps ~ interval, FUN=sum, data=raw_data, na.action=na.omit)
+daily_aggregate <- aggregate(steps ~ interval, FUN=mean, data=raw_data) 
+```
+### Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+```{r}
 plot(daily_aggregate$interval, daily_aggregate$steps, type = "l")
-max(daily_aggregate$steps)
+```
 
+### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r}
+max(daily_aggregate$steps)
 ```
 
 
 ## Imputing missing values
+### There are a number of days/intervals with missing values (NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
+### Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+```{r}
+steps.na <- sum(is.na(raw_data$steps))
+date.na <- sum(is.na(raw_data$date))
+interval.na <- sum(is.na(raw_data$interval))
+```
+### Conclusion: in raw_data, there are 
+1. `r steps.na` missing step entries
+1. `r date.na` missing date entries 
+1. `r interval.na` missing interval entries.
 
+### Unsophisticated strategy for filling in all of the missing values in the dataset: NA step entries are replaced with the mean step value for that interval, over all measured intervals.
+### Create a new dataset that is equal to the original dataset but with the missing data filled in.
+```{r}
+raw_data2 <- dplyr::mutate(raw_data, steps = ifelse(is.na(steps), daily_aggregate[daily_aggregate$interval == interval, 2], steps))
+```
 
+```{r}
+steps_per_day2 <- aggregate(steps ~ date, FUN=sum, data=raw_data2)
+```
+```{r}
+hist(steps_per_day2$steps)
+```
+```{r}
+avg2 <- mean(steps_per_day2$steps)
+med2 <- median(steps_per_day2$steps)
+```
+Average daily step count (2): `r avg2`.  
+Median daily step count (2): `r med2`.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
